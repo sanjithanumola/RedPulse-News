@@ -5,8 +5,17 @@ import { chatWithNova } from '../../services/geminiService';
 import { ChatMessage } from '../../types';
 import { cn } from '../../lib/utils';
 
-export default function ChatBot() {
-  const [isOpen, setIsOpen] = useState(false);
+interface ChatBotProps {
+  isOpenExternal?: boolean;
+  setIsOpenExternal?: (open: boolean) => void;
+  initialMessage?: string | null;
+}
+
+export default function ChatBot({ isOpenExternal, setIsOpenExternal, initialMessage }: ChatBotProps) {
+  const [isOpenInternal, setIsOpenInternal] = useState(false);
+  const isOpen = isOpenExternal !== undefined ? isOpenExternal : isOpenInternal;
+  const setIsOpen = setIsOpenExternal || setIsOpenInternal;
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: 'assistant', content: "Hello! I'm Nova, your AI news intelligence. I can summarize articles, explain complex topics about India/Hyderabad, or discuss current trends. How can I help you today?" }
   ]);
@@ -15,27 +24,36 @@ export default function ChatBot() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (initialMessage) {
+      setMessages(prev => [...prev, { role: 'user', content: initialMessage }]);
+      handleSend(initialMessage);
+    }
+  }, [initialMessage]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isOpen]);
 
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
+  const handleSend = async (customInput?: string) => {
+    const textToSubmit = customInput || input;
+    if (!textToSubmit.trim() || loading) return;
 
-    const userMsg: ChatMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
+    if (!customInput) {
+        setMessages(prev => [...prev, { role: 'user', content: textToSubmit }]);
+        setInput('');
+    }
+    
     setLoading(true);
 
     try {
-      // Map history to Gemini format (user/model) if needed, but here I'll stick to a simple proxy
       const history = messages.map(m => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: m.content }]
       }));
       
-      const response = await chatWithNova(input, history as any);
+      const response = await chatWithNova(textToSubmit, history as any);
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
     } catch (error) {
       console.error(error);

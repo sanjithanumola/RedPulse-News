@@ -5,34 +5,44 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", sans-serif;
   
-  --color-primary: #FF0D0D;
+  --color-primary: #FF0000;
   --color-primary-dark: #cc0000;
-  --color-surface: #0A0A0A;
-  --color-surface-lighter: #1A1A1A;
-  --color-border: rgba(255, 255, 255, 0.1);
+  --color-neon-red: #FF3131;
+  --color-surface: #040404;
+  --color-surface-lighter: #0F0F0F;
+  --color-border: rgba(255, 255, 255, 0.05);
 }
 
 @layer base {
   body {
     @apply bg-surface text-white antialiased selection:bg-primary selection:text-white;
+    background-image: 
+      radial-gradient(circle at 50% -20%, rgba(255, 0, 0, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 0% 0%, rgba(255, 0, 0, 0.05) 0%, transparent 30%);
+    background-attachment: fixed;
   }
 }
 
 @layer components {
   .glass {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.05];
   }
   
   .glass-dark {
-    @apply bg-black/40 backdrop-blur-xl border border-white/5;
+    @apply bg-black/60 backdrop-blur-2xl border border-white/10;
   }
   
   .red-glow {
-    box-shadow: 0 0 30px rgba(255, 13, 13, 0.2);
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.3);
+  }
+
+  .neon-border {
+    @apply border border-primary/30;
+    box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.1);
   }
   
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-white/80 to-white/40;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-white to-white/40;
   }
 }
 

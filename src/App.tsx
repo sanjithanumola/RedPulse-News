@@ -17,10 +17,17 @@ export default function App() {
   const [selectedArticle, setSelectedArticle] = useState<NewsArticle | null>(null);
   const [category, setCategory] = useState<Category>('General');
   const [loading, setLoading] = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatInitialMessage, setChatInitialMessage] = useState<string | null>(null);
 
   const categories: Category[] = [
     'General', 'Technology', 'AI', 'Hyderabad', 'India', 'Sports', 'Gaming', 'Business', 'Science'
   ];
+
+  const handleAskAI = (article: NewsArticle) => {
+    setChatInitialMessage(`I'm reading "${article.title}". Can you tell me more about its implications for ${article.location || 'the world'}?`);
+    setIsChatOpen(true);
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -36,67 +43,66 @@ export default function App() {
     <div className="min-h-screen font-sans">
       <Navbar />
       
-      <main className="pt-24">
-        {/* Ticker Row */}
+      <main className="pt-24 pb-20">
         <NewsTicker />
 
         <div className="max-w-7xl mx-auto px-6 py-12">
           
-          {/* Header & Categories */}
-          <section className="mb-12">
-             <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8">
-                <div>
-                   <h2 className="text-sm font-black uppercase tracking-[0.4em] text-primary mb-2">Global Intelligence Feed</h2>
-                   <h1 className="text-4xl md:text-6xl font-display font-extrabold tracking-tight leading-none">
-                      THE WORLD <br /> <span className="text-gradient">IN REAL-TIME</span>
+          <section className="mb-16">
+             <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+                <motion.div
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                >
+                   <h2 className="text-sm font-black uppercase tracking-[0.5em] text-primary mb-4 flex items-center gap-2">
+                     <span className="w-2 h-2 bg-primary rounded-full animate-ping" />
+                     Pulse Operational
+                   </h2>
+                   <h1 className="text-5xl md:text-8xl font-display font-black tracking-tight leading-[0.9] text-gradient">
+                      GLOBAL<br />INTELLIGENCE
                    </h1>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                   {categories.map((c) => (
-                     <button
+                </motion.div>
+                <div className="flex flex-wrap gap-2 max-w-xl justify-end">
+                   {categories.map((c, i) => (
+                     <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
                         key={c}
                         onClick={() => setCategory(c)}
                         className={cn(
-                          "px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border",
+                          "px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border",
                           category === c 
                             ? "bg-primary border-primary red-glow text-white" 
-                            : "bg-white/5 border-white/10 hover:bg-white/10 opacity-60"
+                            : "bg-white/[0.03] border-white/5 hover:border-primary/50 opacity-60"
                         )}
                      >
                         {c}
-                     </button>
+                     </motion.button>
                    ))}
                 </div>
              </div>
           </section>
 
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            {/* News Feed - Left Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             <div className="lg:col-span-8 space-y-12">
-               
                {loading ? (
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="aspect-video glass animate-pulse rounded-2xl" />
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                      <div key={i} className="aspect-[16/10] glass animate-pulse rounded-3xl border border-white/5" />
                     ))}
                  </div>
                ) : (
                  <>
-                   {/* Featured Row */}
                    {featuredArticle && (
-                     <div className="grid grid-cols-1 gap-6">
-                        <NewsCard 
-                          featured 
-                          article={featuredArticle} 
-                          onClick={setSelectedArticle} 
-                        />
-                     </div>
+                     <NewsCard 
+                       featured 
+                       article={featuredArticle} 
+                       onClick={setSelectedArticle} 
+                     />
                    )}
 
-                   {/* Grid Row */}
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                       {regularArticles.map(article => (
                         <NewsCard 
                           key={article.id} 
@@ -106,46 +112,69 @@ export default function App() {
                       ))}
                    </div>
 
-                   {articles.length === 0 && !loading && (
-                      <div className="py-20 text-center glass rounded-3xl">
-                         <Sparkles className="w-12 h-12 mx-auto opacity-20 mb-4" />
-                         <h3 className="font-display text-xl opacity-60 uppercase tracking-widest">No intelligence found in this sector.</h3>
-                         <p className="text-sm opacity-40 mt-2">Try switching frequency or searching global bands.</p>
+                   {articles.length === 0 && (
+                      <div className="py-32 text-center glass rounded-[3rem] border border-white/5">
+                         <Sparkles className="w-16 h-16 mx-auto opacity-10 mb-6" />
+                         <h3 className="font-display text-2xl opacity-40 uppercase tracking-[0.2em] font-black">Null Transmission</h3>
+                         <p className="text-sm opacity-20 mt-4 uppercase tracking-widest font-bold">Scanning for alternative intelligence bands...</p>
                       </div>
                    )}
                  </>
                )}
             </div>
 
-            {/* Sidebar - Right Side */}
-            <aside className="lg:col-span-4 space-y-8">
+            <aside className="lg:col-span-4 space-y-10">
                <SidebarWidgets />
             </aside>
           </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-24 border-t border-white/5 py-12 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded flex items-center justify-center font-display font-black">N</div>
-            <span className="font-display font-black tracking-tighter text-xl uppercase">NewsNova AI</span>
+      <footer className="mt-32 border-t border-white/5 py-20 px-6 bg-black/40">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+          <div className="md:col-span-2 space-y-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center font-display font-black text-2xl red-glow shadow-[0_0_15px_rgba(255,0,0,0.4)]">R</div>
+              <span className="font-display font-black tracking-tighter text-3xl uppercase">RedPulse Intelligence</span>
+            </div>
+            <p className="text-sm opacity-40 max-w-sm font-medium leading-relaxed">The world's first neural-driven news collective. Delivering verified intelligence through integrated AI systems in the Hyderabad region.</p>
           </div>
-          <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest opacity-40">
-             <a href="#" className="hover:text-primary transition-colors">Privacy Neural Ethics</a>
-             <a href="#" className="hover:text-primary transition-colors">Operational Terms</a>
-             <a href="#" className="hover:text-primary transition-colors">Intelligence Sources</a>
+          <div className="space-y-4">
+             <h4 className="text-xs font-black uppercase tracking-widest text-primary">Sectors</h4>
+             <ul className="text-xs space-y-3 font-bold opacity-50 uppercase tracking-widest">
+                <li className="hover:text-primary cursor-pointer transition-colors">Operational Tech</li>
+                <li className="hover:text-primary cursor-pointer transition-colors">Neural AI</li>
+                <li className="hover:text-primary cursor-pointer transition-colors">Telangana Division</li>
+                <li className="hover:text-primary cursor-pointer transition-colors">Global Trade</li>
+             </ul>
           </div>
-          <p className="text-[10px] opacity-30 uppercase font-black tracking-widest">© 2026 Nova Media Group • Sub-Neural Div.</p>
+          <div className="space-y-4">
+             <h4 className="text-xs font-black uppercase tracking-widest text-primary">Intelligence</h4>
+             <ul className="text-xs space-y-3 font-bold opacity-50 uppercase tracking-widest">
+                <li className="hover:text-primary cursor-pointer transition-colors">Neural Policy</li>
+                <li className="hover:text-primary cursor-pointer transition-colors">Bias Protocol</li>
+                <li className="hover:text-primary cursor-pointer transition-colors">Source Verification</li>
+             </ul>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto mt-20 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+           <p className="text-[10px] opacity-30 uppercase font-black tracking-[0.3em]">© 2026 RedPulse Neural Div. Operational Excellence.</p>
+           <div className="flex gap-8 text-[10px] font-black uppercase tracking-widest opacity-30">
+              <span>Latency: 12ms</span>
+              <span>Nodes: Active (11.02)</span>
+           </div>
         </div>
       </footer>
 
-      {/* AI Components */}
-      <ChatBot />
+      <ChatBot 
+        isOpenExternal={isChatOpen} 
+        setIsOpenExternal={setIsChatOpen} 
+        initialMessage={chatInitialMessage} 
+      />
       <ArticleDetail 
         article={selectedArticle} 
         onClose={() => setSelectedArticle(null)} 
+        onAskAI={handleAskAI}
       />
       <BreakingNewsModal />
     </div>

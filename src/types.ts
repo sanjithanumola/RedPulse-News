@@ -15,6 +15,8 @@ export interface NewsArticle {
     eli5: string;
     biasScore: number; // 0 to 1
     biasAnalysis: string;
+    sentiment?: 'Positive' | 'Neutral' | 'Negative';
+    truthMeter?: number; // 0 to 100
     isFakeNews: boolean;
     fakeNewsReason?: string;
   };

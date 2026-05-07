@@ -9,13 +9,15 @@ export async function analyzeArticleAI(article: NewsArticle): Promise<NewsArticl
   2. An "Explain Like I'm 10" (ELI10) version.
   3. A bias score from 0.0 to 1.0 (0 being neutral, 1 being highly biased).
   4. A brief bias analysis.
-  5. Boolean indicating if it's likely fake news and why.
+  5. Overall sentiment (Positive, Neutral, or Negative).
+  6. A Truth Meter score from 0 to 100 (100 being highly verified/factual).
+  7. Boolean indicating if it's likely fake news and why.
   
   Article Content:
   Title: ${article.title}
   Content: ${article.content}
   
-  Return as JSON with keys: summary, eli10, biasScore, biasAnalysis, isFakeNews, fakeNewsReason.`;
+  Return as JSON with keys: summary, eli10, biasScore, biasAnalysis, sentiment, truthMeter, isFakeNews, fakeNewsReason.`;
 
   const result = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
