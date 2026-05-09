@@ -10,6 +10,8 @@ import SidebarWidgets from './components/widgets/SidebarWidgets';
 import BreakingNewsModal from './components/layout/BreakingNewsModal';
 import { NewsArticle, Category } from './types';
 import { fetchNews } from './lib/api';
+import { generateDailyNews } from './services/geminiService';
+import { getCachedNews, cacheNews } from './lib/supabase';
 import { cn } from './lib/utils';
 
 export default function App() {
@@ -30,10 +32,43 @@ export default function App() {
   };
 
   useEffect(() => {
-    setLoading(true);
-    fetchNews(category === 'General' ? undefined : category)
-      .then(setArticles)
-      .finally(() => setLoading(false));
+    async function loadIntelligence() {
+      setLoading(true);
+      const today = new Date().toISOString().split('T')[0];
+      
+      try {
+        if (category === 'General') {
+          // 1. Check Cache
+          const cached = await getCachedNews(today);
+          if (cached) {
+            setArticles(cached);
+            setLoading(false);
+            return;
+          }
+
+          // 2. Generate
+          console.log("Synthesizing Daily Intelligence...");
+          const freshArticles = await generateDailyNews();
+          if (freshArticles && freshArticles.length > 0) {
+            setArticles(freshArticles);
+            // 3. Cache (ignore errors on caching)
+            cacheNews(today, freshArticles).catch(console.error);
+            setLoading(false);
+            return;
+          }
+        }
+
+        const data = await fetchNews(category === 'General' ? undefined : category);
+        setArticles(data);
+      } catch (err) {
+        console.error("Neural Network Failure:", err);
+        const data = await fetchNews(category === 'General' ? undefined : category).catch(() => []);
+        setArticles(data);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadIntelligence();
   }, [category]);
 
   const featuredArticle = articles.length > 0 ? articles[0] : null;

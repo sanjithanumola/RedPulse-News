@@ -2,11 +2,7 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
-import dotenv from "dotenv";
 import { NewsArticle, Category } from "./src/types";
-
-dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,8 +12,8 @@ async function startServer() {
 
   app.use(express.json());
 
-  // Mock Data Store (In-memory for this prototype)
-  const articles: NewsArticle[] = [
+  // Static News Repository (Fallback)
+  let articles: NewsArticle[] = [
     {
       id: "1",
       title: "Hyderabad's Tech Corridor Sees Massive Expansion in 2026",

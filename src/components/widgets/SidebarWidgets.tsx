@@ -32,18 +32,6 @@ export default function SidebarWidgets() {
          <button className="mt-4 w-full py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold transition-all">View All Markers</button>
       </div>
 
-      {/* AI Newsletter */}
-      <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/20 to-primary-dark/40 border border-primary/20 red-glow">
-         <div className="flex items-center gap-2 mb-3">
-            <Zap className="w-4 h-4" />
-            <h3 className="text-[10px] font-black uppercase tracking-widest">Neural Daily</h3>
-         </div>
-         <p className="text-xs opacity-80 mb-4 leading-relaxed">Get our AI-curated intelligence report delivered to your brain's inbox daily.</p>
-         <div className="flex gap-2">
-            <input type="email" placeholder="Email" className="flex-1 bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-xs focus:border-primary transition-colors outline-none" />
-            <button className="bg-white text-black px-3 rounded-lg text-xs font-black">JOIN</button>
-         </div>
-      </div>
     </div>
   );
 }

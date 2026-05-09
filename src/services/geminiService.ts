@@ -1,7 +1,49 @@
 import { GoogleGenAI } from "@google/genai";
 import { NewsArticle, ChatMessage } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const geminiKey = process.env.GEMINI_API_KEY;
+if (!geminiKey) {
+  console.warn('GEMINI_API_KEY missing. AI features will be limited.');
+}
+const ai = new GoogleGenAI({ apiKey: geminiKey || "" });
+
+export async function generateDailyNews(): Promise<NewsArticle[]> {
+  const today = new Date().toDateString();
+  const prompt = `Generate 12 futuristic news articles for today (${today}). 
+  Themes: India, Hyderabad, Artificial Intelligence, Space Travel, Tech Business, Gaming, Sports, Science.
+  The style should be high-tech, optimistic, and data-driven ("RedPulse Intelligence").
+  
+  Return as a JSON array of objects with this structure:
+  {
+    "id": string (unique),
+    "title": string,
+    "description": string (one sentence),
+    "content": string (at least 3 paragraphs),
+    "author": string,
+    "publishedAt": string (ISO date),
+    "source": string,
+    "url": "#",
+    "urlToImage": string (Use relevant High-quality Unsplash URLs),
+    "category": One of ("Technology", "AI", "Sports", "Gaming", "Business", "Science", "Hyderabad", "India"),
+    "location": "Hyderabad" or "India" or null
+  }
+  Ensure valid JSON.`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json"
+    }
+  });
+
+  const text = response.text || "";
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (jsonMatch) {
+    return JSON.parse(jsonMatch[0]);
+  }
+  throw new Error("Failed to parse intelligence report");
+}
 
 export async function analyzeArticleAI(article: NewsArticle): Promise<NewsArticle['aiAnalysis']> {
   const prompt = `Analyze this news article and provide:
@@ -21,7 +63,10 @@ export async function analyzeArticleAI(article: NewsArticle): Promise<NewsArticl
 
   const result = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
-    contents: prompt
+    contents: prompt,
+    config: {
+      responseMimeType: "application/json"
+    }
   });
 
   const text = result.text;
